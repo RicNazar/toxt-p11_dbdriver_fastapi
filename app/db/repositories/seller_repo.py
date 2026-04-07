@@ -1,28 +1,28 @@
 from sqlalchemy import delete, insert, select, update
+from sqlalchemy.engine import Engine
 
-from app.db.engine import engine
 from app.db.metadata import sellers_table
 
 
 class SellerRepository:
 
-    @staticmethod
-    def get_all() -> list[dict]:
-        with engine.connect() as conn:
+    def __init__(self, engine: Engine) -> None:
+        self.engine = engine
+
+    def get_all(self) -> list[dict]:
+        with self.engine.connect() as conn:
             rows = conn.execute(select(sellers_table)).mappings().all()
             return [dict(r) for r in rows]
 
-    @staticmethod
-    def get_by_id(seller_id: int) -> dict | None:
-        with engine.connect() as conn:
+    def get_by_id(self, seller_id: int) -> dict | None:
+        with self.engine.connect() as conn:
             row = conn.execute(
                 select(sellers_table).where(sellers_table.c.id == seller_id)
             ).mappings().first()
             return dict(row) if row else None
 
-    @staticmethod
-    def create(data: dict) -> dict | None:
-        with engine.begin() as conn:
+    def create(self, data: dict) -> dict | None:
+        with self.engine.begin() as conn:
             result = conn.execute(insert(sellers_table).values(**data))
             inserted_id = result.lastrowid
             row = conn.execute(
@@ -30,9 +30,8 @@ class SellerRepository:
             ).mappings().first()
             return dict(row) if row else None
 
-    @staticmethod
-    def update(seller_id: int, data: dict) -> dict | None:
-        with engine.begin() as conn:
+    def update(self, seller_id: int, data: dict) -> dict | None:
+        with self.engine.begin() as conn:
             conn.execute(
                 update(sellers_table)
                 .where(sellers_table.c.id == seller_id)
@@ -43,9 +42,8 @@ class SellerRepository:
             ).mappings().first()
             return dict(row) if row else None
 
-    @staticmethod
-    def delete(seller_id: int) -> bool:
-        with engine.begin() as conn:
+    def delete(self, seller_id: int) -> bool:
+        with self.engine.begin() as conn:
             result = conn.execute(
                 delete(sellers_table).where(sellers_table.c.id == seller_id)
             )

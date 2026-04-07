@@ -1,32 +1,32 @@
 from datetime import datetime
 
+from sqlalchemy.engine import Engine
+
 from app.db.repositories.sale_repo import SaleRepository
 from app.schemas.sale import SaleCreate, SaleUpdate
 
 
 class SaleService:
 
-    @staticmethod
-    def list_sales() -> list[dict]:
-        return SaleRepository.get_all()
+    def __init__(self, engine: Engine) -> None:
+        self.repo = SaleRepository(engine)
 
-    @staticmethod
-    def get_sale(sale_id: int) -> dict | None:
-        return SaleRepository.get_by_id(sale_id)
+    def list_sales(self) -> list[dict]:
+        return self.repo.get_all()
 
-    @staticmethod
-    def list_by_seller(seller_id: int) -> list[dict]:
-        return SaleRepository.get_by_seller(seller_id)
+    def get_sale(self, sale_id: int) -> dict | None:
+        return self.repo.get_by_id(sale_id)
 
-    @staticmethod
-    def create_sale(payload: SaleCreate) -> dict:
+    def list_by_seller(self, seller_id: int) -> list[dict]:
+        return self.repo.get_by_seller(seller_id)
+
+    def create_sale(self, payload: SaleCreate) -> dict:
         data = payload.model_dump()
         data["created_at"] = datetime.now()
-        return SaleRepository.create(data)
+        return self.repo.create(data)
 
-    @staticmethod
-    def update_sale(sale_id: int, payload: SaleUpdate) -> dict | None:
+    def update_sale(self, sale_id: int, payload: SaleUpdate) -> dict | None:
         data = payload.model_dump(exclude_none=True)
         if not data:
-            return SaleRepository.get_by_id(sale_id)
-        return SaleRepository.update(sale_id, data)
+            return self.repo.get_by_id(sale_id)
+        return self.repo.update(sale_id, data)

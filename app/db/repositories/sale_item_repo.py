@@ -1,22 +1,23 @@
 from sqlalchemy import delete, insert, select
+from sqlalchemy.engine import Engine
 
-from app.db.engine import engine
 from app.db.metadata import sale_items_table
 
 
 class SaleItemRepository:
 
-    @staticmethod
-    def get_by_sale(sale_id: int) -> list[dict]:
-        with engine.connect() as conn:
+    def __init__(self, engine: Engine) -> None:
+        self.engine = engine
+
+    def get_by_sale(self, sale_id: int) -> list[dict]:
+        with self.engine.connect() as conn:
             rows = conn.execute(
                 select(sale_items_table).where(sale_items_table.c.sale_id == sale_id)
             ).mappings().all()
             return [dict(r) for r in rows]
 
-    @staticmethod
-    def create(data: dict) -> dict | None:
-        with engine.begin() as conn:
+    def create(self, data: dict) -> dict | None:
+        with self.engine.begin() as conn:
             result = conn.execute(insert(sale_items_table).values(**data))
             inserted_id = result.lastrowid
             row = conn.execute(
@@ -24,9 +25,8 @@ class SaleItemRepository:
             ).mappings().first()
             return dict(row) if row else None
 
-    @staticmethod
-    def delete(item_id: int) -> bool:
-        with engine.begin() as conn:
+    def delete(self, item_id: int) -> bool:
+        with self.engine.begin() as conn:
             result = conn.execute(
                 delete(sale_items_table).where(sale_items_table.c.id == item_id)
             )
