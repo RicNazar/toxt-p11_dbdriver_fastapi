@@ -8,10 +8,10 @@ class ExcelRepository:
 
     def __init__(self, engine: Engine) -> None:
         self.engine = engine
-        self.driver = DbDriver(engine, metadata)
+        self.driver = DbDriver(metadata,engine)
 
     def get_schema(self) -> list[ExcelSchema]:
-        return []
+        return self.driver.get_schema()
 
     def execute_query(self, query: str) -> list[list[Any]]:
         return self.driver.execute(query)

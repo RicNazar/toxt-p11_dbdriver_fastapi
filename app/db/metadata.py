@@ -21,7 +21,7 @@ sellers_table = Table(
     Column("name", String(100), nullable=False),
     Column("email", String(150), nullable=False, unique=True),
     Column("phone", String(20), nullable=True),
-    Column("active", Boolean, nullable=False, server_default=text("1")),
+    Column("active", Boolean, nullable=False, server_default=text("true")),
     Column("created_at", DateTime, nullable=False),
 )
 

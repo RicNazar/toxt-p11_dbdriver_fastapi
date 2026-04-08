@@ -9,7 +9,12 @@ router = APIRouter()
 
 @router.get("/schema", response_model=ExcelStdResponse[ExcelSchema])
 def get_schema(token: AuthDep, svc: ExcelDep):
-    return svc.schema()
+    response:ExcelStdResponse[ExcelSchema] = {
+        "status": "success",
+        "message": "Schema retrieved successfully",
+        "data": svc.schema()
+    }
+    return response
 
 @router.post("/execute",response_model=ExcelStdResponse[list[list[Any]]])
 def execute_query(token: AuthDep, svc: ExcelDep, payload: ExcelExecute):
