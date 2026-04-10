@@ -1,6 +1,6 @@
 from sqlalchemy.engine import Engine
 from typing import Any
-from app.schemas.excel import ExcelSchema
+from app.schemas.excel import ExcelSchema, ExcelSchemaColumn
 from app.db.metadata import metadata
 from pyeasymatrixdb import DbDriver
 
@@ -11,10 +11,27 @@ class ExcelRepository:
         self.driver = DbDriver(metadata,engine)
 
     def get_schema(self) -> list[ExcelSchema]:
-        return self.driver.get_schema()
+        sch = self.driver.get_schema()
+        
+        #Turn column definitions into ExcelSchemaColumn
+        result: list[ExcelSchema] = []
+        for table, columns in sch.items():
+            #add table if necessary
+            result.append(ExcelSchema(
+                table=table,
+                columns={col_name: ExcelSchemaColumn(
+                    type=str(col_def['type']),
+                    primary=col_def['primary'],
+                    unique=col_def['unique'],
+                    default=col_def['default'],
+                    nullable=col_def['nullable']
+                ) for col_name, col_def in columns.items()}
+            ))
+        return result
 
     def execute_query(self, query: str) -> list[list[Any]]:
-        return self.driver.execute(query)
+        result = self.driver.execute(query)
+        return result
 
     def search(self,headers:list[list[str]],filters:list[list[str]],relationships:list[list[str]]):
         self.driver.Pesquisar.reset()

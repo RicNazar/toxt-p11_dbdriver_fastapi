@@ -16,15 +16,21 @@ def get_schema(token: AuthDep, svc: ExcelDep):
     }
     return response
 
-@router.post("/execute",response_model=ExcelStdResponse[list[list[Any]]])
+@router.post("/execute",response_model=ExcelStdResponse[list[Any]])
 def execute_query(token: AuthDep, svc: ExcelDep, payload: ExcelExecute):
     try:
-        result = svc.execute_query(payload.query)
-        return ExcelStdResponse(status="success", message="Query executed successfully", data=result)
+        result = svc.execute_query(payload)
+        result_ok: ExcelStdResponse[list[Any]] = {
+            "status":"success",
+            "message":"Query executed successfully",
+            "data":result
+        }
+        return result_ok
+    
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-@router.post("/search",response_model=ExcelStdResponse[list[list[Any]]])
+@router.post("/search",response_model=ExcelStdResponse[list[Any]])
 def search(token: AuthDep, svc: ExcelDep, payload: ExcelSearch):
     try:
         result = svc.search(payload)
@@ -32,7 +38,8 @@ def search(token: AuthDep, svc: ExcelDep, payload: ExcelSearch):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-@router.post("/update",response_model=ExcelStdResponse[list[list[Any]]])
+
+@router.post("/update",response_model=ExcelStdResponse[list[Any]])
 def update(token: AuthDep, svc: ExcelDep, payload: ExcelUpdate):
     try:
         result = svc.update(payload)
@@ -40,7 +47,7 @@ def update(token: AuthDep, svc: ExcelDep, payload: ExcelUpdate):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-@router.post("/calculate",response_model=ExcelStdResponse[list[list[Any]]])
+@router.post("/calculate",response_model=ExcelStdResponse[list[Any]])
 def calculate(token: AuthDep, svc: ExcelDep, payload: ExcelCalculate):
     try:
         result = svc.calculate(payload)

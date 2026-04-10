@@ -4,14 +4,15 @@ from pydantic import BaseModel, model_validator
 T = TypeVar('T')
 
 class ExcelSchemaColumn(BaseModel):
-    name: str
     type: str
+    primary: bool = False
     unique: bool = False
+    default: Any = None
     nullable: bool = True
 
 class ExcelSchema(BaseModel):
-    table: int
-    columns: list[ExcelSchemaColumn] = []
+    table: str
+    columns: dict[str,ExcelSchemaColumn] = []
 
 class ExcelStdResponse(BaseModel,Generic[T]):
     status: Literal['success','error']
