@@ -39,9 +39,10 @@ def search(token: AuthDep, svc: ExcelDep, payload: ExcelSearch):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.post("/update",response_model=ExcelStdResponse[list[Any]])
+@router.post("/update",response_model=ExcelStdResponse[Any])
 def update(token: AuthDep, svc: ExcelDep, payload: ExcelUpdate):
     try:
+        print("Payload received for update:", payload)
         result = svc.update(payload)
         return ExcelStdResponse(status="success", message="Query executed successfully", data=result)
     except Exception as e:

@@ -35,6 +35,7 @@ class ExcelSearch(BaseModel):
     headers: list[list[str]]
     filters: list[list[str]] | None = None
     relationships: list[list[str]] | None = None
+    approximate: bool = False
 
 class ExcelUpdate(BaseModel):
     data: list[list[Any]]
