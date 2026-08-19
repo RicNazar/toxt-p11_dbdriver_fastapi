@@ -12,7 +12,7 @@ class ExcelSchemaColumn(BaseModel):
 
 class ExcelSchema(BaseModel):
     table: str
-    columns: dict[str,ExcelSchemaColumn] = []
+    columns: dict[str,ExcelSchemaColumn]
 
 class ExcelStdResponse(BaseModel,Generic[T]):
     status: Literal['success','error']

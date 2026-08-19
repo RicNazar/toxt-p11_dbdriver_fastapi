@@ -10,7 +10,6 @@ from app.db.metadata import metadata
 async def lifespan(app: FastAPI):
     app.state.engine = engine
     app.state.metadata = metadata
-    app.state.db_driver = DbDriver(metadata,engine)
     metadata.create_all(engine)
     yield
     engine.dispose()

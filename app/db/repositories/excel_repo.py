@@ -1,4 +1,4 @@
-from sqlalchemy.engine import Engine
+from sqlalchemy import Connection
 from typing import Any
 from app.schemas.excel import ExcelSchema, ExcelSchemaColumn
 from app.db.metadata import metadata
@@ -6,9 +6,9 @@ from pyeasymatrixdb import DbDriver
 
 class ExcelRepository:
 
-    def __init__(self, engine: Engine) -> None:
-        self.engine = engine
-        self.driver = DbDriver(metadata,engine)
+    def __init__(self, connection: Connection) -> None:
+        self.connection = connection
+        self.driver = DbDriver(metadata,connection)
 
     def get_schema(self) -> list[ExcelSchema]:
         sch = self.driver.get_schema()
@@ -33,7 +33,7 @@ class ExcelRepository:
         result = self.driver.execute(query)
         return result
 
-    def search(self,headers:list[list[str]],filters:list[list[str]],relationships:list[list[str]],approximate:bool=False) -> list[list[Any]]:
+    def search(self,headers:list[list[str]],filters:list[list[str]] | None,relationships:list[list[str]] | None,approximate:bool=False) -> list[list[Any]]:
         self.driver.Pesquisar.reset()
         if headers:
             self.driver.Pesquisar.define_header(headers)

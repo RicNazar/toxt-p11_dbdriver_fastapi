@@ -1,4 +1,4 @@
-from sqlalchemy.engine import Engine
+from sqlalchemy import Connection
 from typing import Any
 from app.db.repositories.excel_repo import ExcelRepository
 from app.schemas.excel import ExcelSchema, ExcelExecute, ExcelSearch, ExcelUpdate, ExcelCalculate
@@ -6,8 +6,8 @@ from app.schemas.excel import ExcelSchema, ExcelExecute, ExcelSearch, ExcelUpdat
 
 class ExcelService:
 
-    def __init__(self, engine: Engine) -> None:
-        self.repo = ExcelRepository(engine)
+    def __init__(self, connection: Connection) -> None:
+        self.repo = ExcelRepository(connection)
 
     def schema(self) -> list[ExcelSchema]:
         return self.repo.get_schema()

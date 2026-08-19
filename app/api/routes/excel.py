@@ -1,57 +1,65 @@
+from multiprocessing import connection
+
 from fastapi import APIRouter, HTTPException, status
 from typing import Any
 
-from app.api.deps import AuthDep,ExcelDep
+from app.api.deps import AuthDep, get_transaction, get_connection, Depends,Connection
 from app.schemas.excel import ExcelSchema,ExcelStdResponse,ExcelExecute,ExcelSearch,ExcelUpdate,ExcelCalculate
+from app.services.excel_service import ExcelService
 
 router = APIRouter()
 
 
 @router.get("/schema", response_model=ExcelStdResponse[ExcelSchema])
-def get_schema(token: AuthDep, svc: ExcelDep):
-    response:ExcelStdResponse[ExcelSchema] = {
-        "status": "success",
-        "message": "Schema retrieved successfully",
-        "data": svc.schema()
-    }
+def get_schema(token: AuthDep, connection: Connection = Depends(get_connection)):
+    excelSvc = ExcelService(connection)
+    response = ExcelStdResponse[ExcelSchema](
+        status = "success",
+        message = "Schema retrieved successfully",
+        data = excelSvc.schema()
+    )
     return response
 
 @router.post("/execute",response_model=ExcelStdResponse[list[Any]])
-def execute_query(token: AuthDep, svc: ExcelDep, payload: ExcelExecute):
+def execute_query(payload: ExcelExecute, token: AuthDep, connection: Connection = Depends(get_connection)):
+    excelSvc = ExcelService(connection)
     try:
-        result = svc.execute_query(payload)
-        result_ok: ExcelStdResponse[list[Any]] = {
-            "status":"success",
-            "message":"Query executed successfully",
-            "data":result
-        }
+        result = excelSvc.execute_query(payload)
+        result_ok = ExcelStdResponse[list[Any]](
+            status ="success",
+            message ="Query executed successfully",
+            data = result
+        )
         return result_ok
     
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.post("/search",response_model=ExcelStdResponse[list[Any]])
-def search(token: AuthDep, svc: ExcelDep, payload: ExcelSearch):
+def search(payload: ExcelSearch, token: AuthDep, connection: Connection = Depends(get_connection)):
+    excelSvc = ExcelService(connection)
     try:
-        result = svc.search(payload)
+        result = excelSvc.search(payload)
         return ExcelStdResponse(status="success", message="Query executed successfully", data=result)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/update",response_model=ExcelStdResponse[Any])
-def update(token: AuthDep, svc: ExcelDep, payload: ExcelUpdate):
+def update(payload: ExcelUpdate, token: AuthDep, connection: Connection = Depends(get_transaction)):
+    excelSvc = ExcelService(connection)
     try:
         print("Payload received for update:", payload)
-        result = svc.update(payload)
+        result = excelSvc.update(payload)
         return ExcelStdResponse(status="success", message="Query executed successfully", data=result)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.post("/calculate",response_model=ExcelStdResponse[list[Any]])
-def calculate(token: AuthDep, svc: ExcelDep, payload: ExcelCalculate):
+def calculate(payload: ExcelCalculate, token: AuthDep, connection: Connection = Depends(get_connection)):
+    excelSvc = ExcelService(connection)
     try:
-        result = svc.calculate(payload)
+        result = excelSvc.calculate(payload)
         return ExcelStdResponse(status="success", message="Query executed successfully", data=result)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
